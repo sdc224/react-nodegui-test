@@ -12,10 +12,6 @@ module.exports = (env, argv) => {
       path: path.resolve(__dirname, "dist"),
       filename: "index.js"
     },
-    node: {
-      __dirname: false,
-      __filename: false
-    },
     module: {
       rules: [
         {
@@ -27,16 +23,26 @@ module.exports = (env, argv) => {
           }
         },
         {
-          test: /\.(png|jpe?g|gif|svg|bmp)$/i,
-          use: [{ loader: "file-loader" }]
+          test: /\.(png|jpe?g|gif|svg|bmp|otf)$/i,
+          use: [
+            {
+              loader: "file-loader",
+              options: { publicPath: "dist" }
+            }
+          ]
         },
         {
           test: /\.node/i,
-          use: [{ loader: "node-loader" }, { loader: "file-loader" }]
+          use: [
+            {
+              loader: "native-addon-loader",
+              options: { name: "[name]-[hash].[ext]" }
+            }
+          ]
         }
       ]
     },
-    plugins: [],
+    plugins: [new CleanWebpackPlugin()],
     resolve: {
       extensions: [".tsx", ".ts", ".js", ".jsx", ".json"]
     }
@@ -51,8 +57,5 @@ module.exports = (env, argv) => {
     config.entry.unshift("webpack/hot/poll?100");
   }
 
-  if (argv.p) {
-    config.plugins.push(new CleanWebpackPlugin());
-  }
   return config;
 };
